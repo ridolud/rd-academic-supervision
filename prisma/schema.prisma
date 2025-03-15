@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    String  @id @default(uuid())
+  email String  @unique
+  password String
+  role String
+
+  @@map("users")
+}
+
+model Lecturer {
+  id    String  @id @default(uuid())
+  lecture_number String @unique
+  email String  @unique
+  full_name String
+  do_supervision_quota Int @default(0)
+  
+  id_education_department String
+  id_user String?
+
+  education_department EducationDepartment @relation(fields: [id_education_department], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  minor_lecturers MinorLecturer[]
+  
+  @@map("lecturers")
+}
+
+model Student {
+  id    String  @id @default(uuid())
+  student_number String @unique
+  email String @unique
+  full_name String
+  
+  id_education_department String
+  id_user String?
+
+  education_department EducationDepartment @relation(fields: [id_education_department], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  @@map("students")
+}
+
+model Supervision {
+  id    String  @id @default(uuid())
+  request_date DateTime @default(now())
+  updated_at DateTime @updatedAt()
+
+  id_supervisor1 String?
+  id_supervisor2 String?
+
+  @@map("supervisions")
+}
+
+model MinorLecturer {
+  id    String  @id @default(uuid())
+  id_lecturer String
+  id_minor String
+
+  lecturer Lecturer @relation(fields: [id_lecturer], references: [id], onDelete: Cascade, onUpdate: Cascade) 
+  supervisions Supervisor []
+
+  @@map("minor_lecturers")
+  @@unique([id_lecturer, id_minor])
+}
+
+model Supervisor {
+  id    String  @id @default(uuid())
+  status String @default("pending")
+  request_date DateTime @default(now())
+  updated_at DateTime @updatedAt()
+
+  id_supervisions String
+  id_supervisor String
+  
+  supervisor MinorLecturer @relation(fields: [id_supervisor], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("supervisors")
+  @@unique([id_supervisions, id_supervisor])
+}
+
+model EducationDepartment {
+  id    String  @id @default(uuid())
+  code String @unique
+  name  String
+
+  major Major?
+
+  lecturers Lecturer []
+  students Student []
+  
+
+  @@map("education_departments")
+}
+
+model Major {
+  id    String  @id @default(uuid())
+  code String @unique
+  name  String
+
+  id_education_department String @unique
+
+  education_department EducationDepartment @relation(fields: [id_education_department], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  minors Minor []
+
+  @@map("majors")
+}
+
+model Minor {
+  id    String  @id @default(uuid())
+  code String @unique
+  name  String
+
+  id_major String
+  
+  major Major @relation(fields: [id_major], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("minors")
+}
