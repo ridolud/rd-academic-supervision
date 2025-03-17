@@ -11,22 +11,20 @@ definePageMeta({
 
 const schema = object({
   email: string().required().email(),
-  password: string().required().min(6),
 });
 
 const state = reactive({
   email: "",
-  password: "",
 });
 
 async function onSubmit() {
-  $fetch("/api/auth/sign-in", {
+  $fetch("/api/auth/sing-in-email", {
     method: "POST",
     body: state,
   })
     .then(async () => {
-      await refreshSession();
-      await navigateTo("/");
+      state.email = "";
+      toast.add({ title: "Link telah berhasil dikirm" });
     })
     .catch((error) => {
       toast.add({ title: error.data.message, color: "error" });
@@ -38,7 +36,7 @@ async function onSubmit() {
   <div class="h-screen w-full flex justify-center items-center">
     <div class="w-full max-w-96">
       <UCard>
-        <h1 class="text-2xl font-medium mb-4">Sing In</h1>
+        <h1 class="text-2xl font-medium mb-4">Sing In with Email</h1>
         <UForm
           :schema="schema"
           :state="state"
@@ -55,27 +53,15 @@ async function onSubmit() {
               name="email"
             />
           </UFormField>
-          <UFormField label="Password" name="password">
-            <UInput
-              class="w-full"
-              v-model="state.password"
-              placeholder="Password"
-              size="lg"
-              type="password"
-              name="password"
-            />
-          </UFormField>
-          <!-- <ULink class="text-sm">forgot password?</ULink> -->
-          <UButton type="submit" size="xl" block>Sign In</UButton>
+          <UButton type="submit" size="xl" block>Send Link</UButton>
         </UForm>
         <div class="mt-8">
           <UButton
             color="neutral"
-            to="/auth/sign-in-email"
-            variant="outline"
-            size="xl"
-            block
-            >Sign In with email</UButton
+            to="/auth/sign-in"
+            variant="link"
+            icon="i-heroicons-arrow-left"
+            >Kembali</UButton
           >
         </div>
       </UCard>

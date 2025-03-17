@@ -90,7 +90,7 @@ const disabledIdsOfLecturer = computed(() => {
               "
             >
               <ModalRequestSupervisor
-                :id_supervisor="supervision.supervisor[n - 1].id ?? undefined"
+                :id_supervisor="supervision.supervisor[n - 1]?.id ?? undefined"
                 :disabled_ids="disabledIdsOfLecturer"
                 @success="refresh"
               >

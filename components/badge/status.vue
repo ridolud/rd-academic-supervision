@@ -1,5 +1,7 @@
 <script lang="ts" setup>
-const props = defineProps<{ status: SupervisorStatusEnum | undefined }>();
+const props = defineProps<{
+  status: SupervisorStatusEnum | string | undefined;
+}>();
 </script>
 
 <template>
