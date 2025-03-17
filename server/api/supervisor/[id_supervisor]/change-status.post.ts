@@ -1,4 +1,5 @@
 import { object, number, string, mixed } from "yup";
+import { sendEmailRequestSupervisorStatusUpdate } from "~/lib/mail";
 import prisma from "~/lib/prisma";
 import authenticated from "~/server/middleware/api-authenticated";
 import onlyLecturer from "~/server/middleware/only-lecturer";
@@ -54,18 +55,33 @@ export default defineEventHandler(async (event) => {
 
   if (supervisor) {
     if (status == SupervisorStatusEnum.APPROVED) {
-      const rejectedSupervisors = await prisma.supervisor.updateMany({
+      const shouldRejectedSupervisors = await prisma.supervisor.findMany({
         where: {
           lecturer: { id_user: secure.user.id },
           status: SupervisorStatusEnum.PENDING,
         },
-        data: {
-          status: SupervisorStatusEnum.REJECTED,
-        },
+      });
+
+      const rejectedSupervisors = await prisma.$transaction(
+        shouldRejectedSupervisors.map((item) =>
+          prisma.supervisor.update({
+            include: {
+              supervision: { include: { student: true } },
+              lecturer: true,
+            },
+            where: { id: item.id },
+            data: { status: SupervisorStatusEnum.REJECTED },
+          })
+        )
+      );
+      rejectedSupervisors.map((item) => {
+        sendEmailRequestSupervisorStatusUpdate(
+          item.supervision.student.email,
+          item.lecturer.full_name,
+          item.status
+        );
       });
     }
-
-    //TODO:notification stuff
 
     return supervisor;
   }

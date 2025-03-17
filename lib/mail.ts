@@ -1,3 +1,4 @@
+import type { Student, Supervisor } from "@prisma/client";
 import { createTransport } from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 
@@ -19,5 +20,28 @@ export function sendEmailLink(to: string, emailToken: string) {
     to,
     subject: "Sign in with email link",
     html: `<p>sign in with this link <a href="${domain}/api/auth/verify-email-link?token=${emailToken}">${domain}/api/auth/verify-email-link?token=${emailToken}</a></p>`,
+  });
+}
+
+export function sendEmailNewRequestSupervisor(
+  to: string,
+  student_full_name: string
+) {
+  mail.sendMail({
+    to,
+    subject: "Prmohonan bimbingan baru",
+    html: `<p>Ada permohonan bimbingan baru dari ${student_full_name}</p>`,
+  });
+}
+
+export function sendEmailRequestSupervisorStatusUpdate(
+  to: string,
+  lecturer_full_name: string,
+  status: string
+) {
+  mail.sendMail({
+    to,
+    subject: "Prmohonan bimbingan telah diperbaharui",
+    html: `<p>Ada permohonan bimbingan untuk pembimbing: ${lecturer_full_name}, telah diperbaharui degan status: ${status}</p>`,
   });
 }

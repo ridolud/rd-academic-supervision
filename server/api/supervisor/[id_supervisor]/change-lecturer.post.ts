@@ -1,4 +1,5 @@
 import { object, number, string } from "yup";
+import { sendEmailNewRequestSupervisor } from "~/lib/mail";
 import prisma from "~/lib/prisma";
 import authenticated from "~/server/middleware/api-authenticated";
 import onlyStudent from "~/server/middleware/only-student";
@@ -51,6 +52,7 @@ export default defineEventHandler(async (event) => {
   const id_supervisor = getRouterParam(event, "id_supervisor");
 
   const supervisor = await prisma.supervisor.update({
+    include: { supervision: { include: { student: true } } },
     where: { id_supervisions: supervision.id, id: id_supervisor },
     data: {
       id_lecturer: minorLecturer.id_lecturer,
@@ -59,7 +61,10 @@ export default defineEventHandler(async (event) => {
   });
 
   if (supervisor) {
-    //TODO:notification stuff
+    sendEmailNewRequestSupervisor(
+      minorLecturer.lecturer.email,
+      supervisor.supervision.student.full_name
+    );
 
     return supervisor;
   }

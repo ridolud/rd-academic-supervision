@@ -1,4 +1,5 @@
 import { object, number, string } from "yup";
+import { sendEmailNewRequestSupervisor } from "~/lib/mail";
 import prisma from "~/lib/prisma";
 import authenticated from "~/server/middleware/api-authenticated";
 import onlyStudent from "~/server/middleware/only-student";
@@ -56,13 +57,20 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 403, message: "lecturer is not available " });
 
   const supervisor = await prisma.supervisor.create({
+    include: { supervision: { include: { student: true } } },
     data: {
       id_supervisions: supervision.id,
       id_lecturer: minorLecturer.id_lecturer,
       status: "pending",
     },
   });
-  if (supervision) return supervisor;
+  if (supervisor) {
+    sendEmailNewRequestSupervisor(
+      minorLecturer.lecturer.email,
+      supervisor.supervision.student.full_name
+    );
+    return supervisor;
+  }
 
   throw createError({
     statusCode: 400,
