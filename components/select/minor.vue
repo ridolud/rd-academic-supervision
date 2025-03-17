@@ -20,7 +20,7 @@ const model = defineModel();
 </script>
 
 <template>
-  <USelectMenu
+  <USelect
     :loading="status == 'pending'"
     class="w-full"
     size="lg"
@@ -28,5 +28,5 @@ const model = defineModel();
     v-model="model"
     value-key="value"
     placeholder="Pilih peminatan"
-  ></USelectMenu>
+  ></USelect>
 </template>

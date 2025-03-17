@@ -31,6 +31,7 @@ model Lecturer {
 
   education_department EducationDepartment @relation(fields: [id_education_department], references: [id], onDelete: NoAction, onUpdate: NoAction)
   minor_lecturers MinorLecturer[]
+  supervisor Supervisor []
   
   @@map("lecturers")
 }
@@ -45,6 +46,8 @@ model Student {
   id_user String?
 
   education_department EducationDepartment @relation(fields: [id_education_department], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  supervision Supervision?
+
   @@map("students")
 }
 
@@ -53,8 +56,13 @@ model Supervision {
   request_date DateTime @default(now())
   updated_at DateTime @updatedAt()
 
-  id_supervisor1 String?
-  id_supervisor2 String?
+  supervisor_qty Int @default(1)
+  id_student String @unique
+  id_minor String
+  
+  student Student  @relation(fields: [id_student], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  minor Minor @relation(fields: [id_minor], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  supervisor Supervisor []
 
   @@map("supervisions")
 }
@@ -65,7 +73,7 @@ model MinorLecturer {
   id_minor String
 
   lecturer Lecturer @relation(fields: [id_lecturer], references: [id], onDelete: Cascade, onUpdate: Cascade) 
-  supervisions Supervisor []
+  minor Minor @relation(fields: [id_minor], references: [id], onDelete: Cascade, onUpdate: Cascade) 
 
   @@map("minor_lecturers")
   @@unique([id_lecturer, id_minor])
@@ -78,12 +86,13 @@ model Supervisor {
   updated_at DateTime @updatedAt()
 
   id_supervisions String
-  id_supervisor String
+  id_lecturer String
   
-  supervisor MinorLecturer @relation(fields: [id_supervisor], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  supervision Supervision @relation(fields: [id_supervisions], references: [id], onDelete:  Cascade, onUpdate: Cascade)
+  lecturer Lecturer @relation(fields: [id_lecturer], references: [id], onDelete:  Cascade, onUpdate: Cascade)
 
   @@map("supervisors")
-  @@unique([id_supervisions, id_supervisor])
+  @@unique([id_supervisions, id_lecturer])
 }
 
 model EducationDepartment {
@@ -121,6 +130,8 @@ model Minor {
   id_major String
   
   major Major @relation(fields: [id_major], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  supervision Supervision[]
+  minor_lecturer MinorLecturer []
 
   @@map("minors")
 }

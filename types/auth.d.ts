@@ -1,11 +1,12 @@
 import type { EducationDepartment } from "@prisma/client";
+import type { UserRole } from "./user";
 
 // auth.d.ts
 declare module "#auth-utils" {
   interface User {
     email: string;
     name: string;
-    role: string;
+    role: UserRole;
     education_department: EducationDepartment;
     profile: any?;
   }

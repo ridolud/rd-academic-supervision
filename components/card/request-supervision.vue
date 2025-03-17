@@ -1,24 +1,42 @@
 <script lang="ts" setup>
-import { object, string } from "yup";
+import { boolean, object, string } from "yup";
 
 const config = useRuntimeConfig();
 const toast = useToast();
 
+const emits = defineEmits(["success"]);
+
 const schema = object({
   id_minor: string().required().uuid(),
-  id_lecturer1: string().required().uuid(),
-  id_lecturer2: string().uuid(),
 });
 
 const model = reactive({
-  id_minor: "23d867a8-6db3-4b5c-9296-af3519ed139f",
-  is_two_supervisor: false,
+  id_minor: "",
+  supervisor_qty: false,
 });
+
+async function onSubmit() {
+  try {
+    console.log("asdasd");
+    const supervision = await $fetch("/api/supervision", {
+      method: "post",
+      body: {
+        id_minor: model.id_minor,
+        supervisor_qty: model.supervisor_qty ? 2 : 1,
+      },
+    });
+
+    emits("success", supervision);
+  } catch (err: any) {
+    console.log(err);
+    toast.add({ color: "error", title: err.data.message });
+  }
+}
 </script>
 
 <template>
   <UCard v-if="config.public.isOpenRequestSupervision">
-    <UForm :state="model">
+    <UForm :state="model" :schema="schema" @submit="onSubmit">
       <div class="space-y-8">
         <div>
           <h3 class="text-lg font-medium">Form Request Bimbingan</h3>
@@ -29,7 +47,7 @@ const model = reactive({
           </p>
         </div>
         <div class="grid lg:grid-cols-2 gap-4">
-          <UFormField label="Peminatan">
+          <UFormField label="Peminatan" required>
             <SelectMinor v-model="model.id_minor" />
           </UFormField>
           <div>
@@ -43,10 +61,7 @@ const model = reactive({
         </div>
         <div class="grid lg:grid-cols-2 gap-4 border-t border-gray-200 pt-4">
           <UFormField label="Jumlah Pembimbing">
-            <UCheckbox
-              v-model="model.is_two_supervisor"
-              label="Dua Pembimbing"
-            />
+            <UCheckbox v-model="model.supervisor_qty" label="Dua Pembimbing" />
           </UFormField>
           <div>
             <p class="text-gray-400 text-sm">
@@ -57,7 +72,7 @@ const model = reactive({
             </p>
           </div>
         </div>
-        <div class="grid lg:grid-cols-2 gap-4 border-t border-gray-200 pt-4">
+        <!-- <div class="grid lg:grid-cols-2 gap-4 border-t border-gray-200 pt-4">
           <div class="space-y-2">
             <UFormField
               :label="
@@ -107,16 +122,12 @@ const model = reactive({
               </p>
             </div>
           </div>
-        </Transition>
+        </Transition> -->
         <div class="flex justify-end gap-2 border-t border-gray-200 pt-4">
           <UButton
+            type="submit"
             size="lg"
-            color="neutral"
-            variant="outline"
-            trailing-icon="i-heroicons-x-mark"
-            >Clear</UButton
-          >
-          <UButton size="lg" trailing-icon="i-heroicons-paper-airplane"
+            trailing-icon="i-heroicons-paper-airplane"
             >Sumbit</UButton
           >
         </div>

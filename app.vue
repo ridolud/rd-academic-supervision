@@ -8,9 +8,9 @@ watch(loggedIn, () => {
 </script>
 
 <template>
+  <NuxtRouteAnnouncer />
   <div class="relative">
     <UApp>
-      <NuxtRouteAnnouncer />
       <NuxtLayout>
         <NuxtPage />
       </NuxtLayout>

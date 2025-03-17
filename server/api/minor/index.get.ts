@@ -1,19 +1,24 @@
 import { Prisma } from "@prisma/client";
 import prisma from "~/lib/prisma";
+import authenticated from "~/server/middleware/api-authenticated";
 
 export default defineEventHandler(async (event) => {
-  const { id_education_department } = getQuery(event);
+  await authenticated(event);
 
-  var where: Prisma.MinorWhereInput = {};
+  const { user } = await getUserSession(event);
 
-  if (id_education_department)
-    where.major = {
-      id_education_department: id_education_department as string,
-    };
-
-  const data = await prisma.minor.findMany({
-    where,
+  const minors = await prisma.minor.findMany({
+    where: {
+      major: {
+        id_education_department: user.education_department.id,
+      },
+    },
   });
 
-  return data;
+  if (minors) return minors;
+
+  throw createError({
+    statusCode: 400,
+    message: "Bad Request",
+  });
 });

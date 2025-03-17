@@ -1,13 +1,22 @@
+<script lang="ts" setup>
+const { data: lecturer } = await useFetch("/api/lecturer/own", { lazy: true });
+</script>
+
 <template>
-  <UCard>
+  <UCard v-if="lecturer">
     <div class="space-y-8">
       <div>
-        <h3 class="text-lg font-medium">Jhon Doe</h3>
-        <p class="text-gray-400 text-sm">[number] | email@domain.com</p>
+        <h3 class="text-lg font-medium">{{ lecturer?.full_name }}</h3>
+        <p class="text-gray-400 text-sm">
+          {{ lecturer.lecture_number }} | {{ lecturer?.email }}
+        </p>
       </div>
       <div class="grid lg:grid-cols-2 gap-4">
         <UFormField label="Program Studi">
-          <p class="text-lg">Lorem ipsum dolor sit amet.</p>
+          <p class="text-lg">{{ lecturer.education_department.name }}</p>
+          <UBadge color="neutral" variant="outline">{{
+            lecturer.education_department.code
+          }}</UBadge>
         </UFormField>
         <div>
           <p class="text-gray-400 text-sm">
@@ -20,7 +29,7 @@
       </div>
       <div class="grid lg:grid-cols-2 gap-4 border-t border-gray-200 pt-4">
         <UFormField label="Quota Bimbingan">
-          <p class="text-lg">2</p>
+          <p class="text-lg">{{ lecturer.do_supervision_quota }}</p>
         </UFormField>
         <div>
           <p class="text-gray-400 text-sm">
@@ -34,10 +43,13 @@
       <div class="grid lg:grid-cols-2 gap-4 border-t border-gray-200 pt-4">
         <UFormField label="Bidang Peminatan">
           <div class="flex gap-2">
-            <UBadge color="neutral" variant="outline">Peminatan 01</UBadge>
-            <UBadge color="neutral" variant="outline">Peminatan 01</UBadge>
-            <UBadge color="neutral" variant="outline">Peminatan 01</UBadge>
-            <UBadge color="neutral" variant="outline">Peminatan 01</UBadge>
+            <UBadge
+              v-for="minor_lecturer in lecturer.minor_lecturers"
+              color="neutral"
+              variant="outline"
+              >{{ minor_lecturer.minor.code }} -
+              {{ minor_lecturer.minor.name }}</UBadge
+            >
           </div>
         </UFormField>
         <div>

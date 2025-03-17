@@ -1,21 +1,33 @@
+import { object, string } from "yup";
 import prisma from "~/lib/prisma";
+import authenticated from "~/server/middleware/api-authenticated";
+import onlyStudent from "~/server/middleware/only-student";
 
 export default defineEventHandler(async (event) => {
-  // const { id_minor, id_education_department } = getQuery(event);
+  await authenticated(event);
 
-  // var where: any = {};
-  // if (id_minor) where.minor_lecturers = { some: { id_minor } };
-  // if (id_education_department)
-  //   where.id_education_department = id_education_department;
-  // try {
-  //   const lecturers = await prisma.lecturer.findMany({
-  //     select: { id: true, full_name: true },
-  //     where,
-  //   });
-  //   return lecturers;
-  // } catch {
-  //   throw createError({ status: 400, message: "bad request!" });
-  // }
+  // Only user role: student can create new supervision request
+  await onlyStudent(event);
 
-  return "ok";
+  const { secure } = await getUserSession(event);
+  const student = await prisma.student.findFirstOrThrow({
+    where: { id_user: secure.user.id },
+  });
+
+  const supervision = await prisma.supervision.findFirst({
+    include: {
+      supervisor: {
+        include: { lecturer: { select: { id: true, full_name: true } } },
+      },
+      minor: true,
+    },
+    where: { id_student: student.id },
+  });
+
+  if (supervision) return supervision;
+
+  throw createError({
+    statusCode: 400,
+    message: "Bad Request",
+  });
 });

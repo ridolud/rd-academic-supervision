@@ -32,6 +32,9 @@ export default defineEventHandler(async (event) => {
         name: dataProfile?.full_name,
         education_department: dataProfile?.education_department,
       },
+      secure: {
+        user: user,
+      },
     });
 
     return {};
@@ -49,6 +52,9 @@ export default defineEventHandler(async (event) => {
         role: user.role,
         name: dataProfile?.full_name,
         education_department: dataProfile?.education_department,
+      },
+      secure: {
+        user: user,
       },
     });
 
