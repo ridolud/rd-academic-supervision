@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
       { email: user.email, id_user: user.id },
       session.password
     );
-    sendEmailLink(email, token);
+    await sendEmailLink(email, token);
   }
 
   return "ok";

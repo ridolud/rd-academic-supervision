@@ -65,7 +65,7 @@ export default defineEventHandler(async (event) => {
     },
   });
   if (supervisor) {
-    sendEmailNewRequestSupervisor(
+    await sendEmailNewRequestSupervisor(
       minorLecturer.lecturer.email,
       supervisor.supervision.student.full_name
     );

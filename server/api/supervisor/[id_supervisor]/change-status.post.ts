@@ -74,13 +74,15 @@ export default defineEventHandler(async (event) => {
           })
         )
       );
-      rejectedSupervisors.map((item) => {
-        sendEmailRequestSupervisorStatusUpdate(
-          item.supervision.student.email,
-          item.lecturer.full_name,
-          item.status
-        );
-      });
+      await Promise.all(
+        rejectedSupervisors.map((item) => {
+          sendEmailRequestSupervisorStatusUpdate(
+            item.supervision.student.email,
+            item.lecturer.full_name,
+            item.status
+          );
+        })
+      );
     }
 
     return supervisor;

@@ -15,7 +15,7 @@ export const mail = createTransport({
   from: process.env.MAIL_FROM,
 } as SMTPTransport.Options);
 
-export function sendEmailLink(to: string, emailToken: string) {
+export async function sendEmailLink(to: string, emailToken: string) {
   mail.sendMail({
     to,
     subject: "Sign in with email link",
@@ -23,7 +23,7 @@ export function sendEmailLink(to: string, emailToken: string) {
   });
 }
 
-export function sendEmailNewRequestSupervisor(
+export async function sendEmailNewRequestSupervisor(
   to: string,
   student_full_name: string
 ) {
@@ -34,7 +34,7 @@ export function sendEmailNewRequestSupervisor(
   });
 }
 
-export function sendEmailRequestSupervisorStatusUpdate(
+export async function sendEmailRequestSupervisorStatusUpdate(
   to: string,
   lecturer_full_name: string,
   status: string
